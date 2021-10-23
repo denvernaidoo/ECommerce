@@ -4,4 +4,8 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.ServiceFabric.Services.Remoting" Version="5.1.335" />
+  </ItemGroup>
+
 </Project>
