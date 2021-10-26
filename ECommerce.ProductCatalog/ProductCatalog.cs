@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using ECommerce.ProductCatalog.Model;
+using Microsoft.ServiceFabric.Data;
 using Microsoft.ServiceFabric.Data.Collections;
 using Microsoft.ServiceFabric.Services.Communication.Runtime;
 using Microsoft.ServiceFabric.Services.Remoting.V2.FabricTransport.Runtime;
@@ -17,7 +18,7 @@ namespace ECommerce.ProductCatalog
     /// </summary>
     internal sealed class ProductCatalog : StatefulService, IProductCatalogService
     {
-        private ServiceFabricProductRepository _repo;
+        private IProductRepository _repo;
 
         public ProductCatalog(StatefulServiceContext context)
             : base(context)
@@ -33,6 +34,11 @@ namespace ECommerce.ProductCatalog
             return (await _repo.GetAllProducts()).ToArray();
         }
 
+        public async Task<Product> GetProductAsync(Guid productId)
+        {
+            return await _repo.GetProduct(productId);
+        }
+
         /// <summary>
         /// Optional override to create listeners (e.g., HTTP, Service Remoting, WCF, etc.) for this service replica to handle client or user requests.
         /// </summary>
@@ -40,12 +46,14 @@ namespace ECommerce.ProductCatalog
         /// For more information on service communication, see https://aka.ms/servicefabricservicecommunication
         /// </remarks>
         /// <returns>A collection of listeners.</returns>
-        protected override IEnumerable<ServiceReplicaListener> CreateServiceReplicaListeners()
+        protected override IEnumerable<ServiceReplicaListener>
+           CreateServiceReplicaListeners()
         {
             return new[]
             {
-                new ServiceReplicaListener(context => new FabricTransportServiceRemotingListener(context, this))
-            };
+            new ServiceReplicaListener(context =>
+               new FabricTransportServiceRemotingListener(context, this))
+         };
         }
 
         /// <summary>
@@ -89,6 +97,7 @@ namespace ECommerce.ProductCatalog
             await _repo.AddProduct(product3);
 
             IEnumerable<Product> all = await _repo.GetAllProducts();
+
         }
     }
 }
